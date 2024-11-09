@@ -33,5 +33,23 @@ const fetchDesignationsAndPositionsApi = async () => {
     throw error;
   }
 };
+const InterviewUserSubmit = async (data) => {
+  try {
+    const response = await api.post("/submit-interview-user",data);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching designations and positions:", error);
+    throw error;
+  }
+};
+const InterviewQuestion = async (data) => {
+  try {
+    const response = await api.post("/interview-question", data);  // Make sure this endpoint is correct
+    return response.data;  // Return the fetched data
+  } catch (error) {
+    console.error("Error fetching interview questions:", error);
+    throw error;  // Rethrow the error to be handled by the calling function
+  }
+};
 
-export { loginUser, registerUser, fetchDesignationsAndPositionsApi };
+export { loginUser, registerUser, fetchDesignationsAndPositionsApi,InterviewUserSubmit,InterviewQuestion };

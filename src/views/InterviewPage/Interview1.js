@@ -22,11 +22,6 @@ import {
   FaClipboardList,
   FaClock,
   FaRegGrinStars,
-  FaCheckCircle,
-  FaMedal,
-  FaRemoveFormat,
-  FaCircle,
-  FaCross,
   FaTimes,
 } from "react-icons/fa";
 import DemoNavbar from "components/Navbars/DemoNavbar";
@@ -34,7 +29,7 @@ import SimpleFooter from "components/Footers/SimpleFooter";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
-import Tagify from "@yaireo/tagify";
+import { InterviewUserSubmit } from "api";
 
 const InterviewPage = () => {
   const [step, setStep] = useState(1); // State to control the step flow
@@ -80,24 +75,27 @@ const InterviewPage = () => {
     setModal(true); // Show the modal
     setTimer(5); // Reset timer to 5 seconds
   };
-  const handleSubmit = (e) => {
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (
-      formData.name &&
-      formData.email &&
-      formData.role &&
-      formData.skills.length > 0
-    ) {
-      console.log("Form submitted:", formData);
-      nextStep();
+  
+    // Ensure all required fields are filled
+    if (formData.name && formData.email && formData.role && formData.skills.length > 0) {
+      const response = await InterviewUserSubmit(formData);
+  
+      if (response) {
+        console.log("Form submitted:", response);
+        localStorage.setItem('inertviewuser', JSON.stringify(response.user));
+        nextStep(); 
+      }
     } else {
       toast.error("Please fill out all required fields.");
     }
   };
+  
 
-  const [skillInput, setSkillInput] = useState(""); // State to hold the current input value for skill
+  const [skillInput, setSkillInput] = useState(""); 
 
-  // Handle change in skill input
   const handleSkillInputChange = (e) => {
     setSkillInput(e.target.value);
   };
@@ -320,7 +318,7 @@ const InterviewPage = () => {
                 <Col md="8" lg="9" xl="9">
                   <Card className="shadow-lg border-0 rounded-lg">
                     <CardBody className="p-5">
-                      <Form onSubmit={(e) => e.preventDefault()}>
+                      <Form onSubmit={handleSubmit}>
                         <FormGroup>
                           <Label for="name">Name</Label>
                           <Input
