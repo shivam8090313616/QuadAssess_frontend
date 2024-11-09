@@ -14,6 +14,7 @@ import Register from "views/auth/Register";
 import Dashboard from "views/main/Dashboard";
 import NotFoundPage from "views/404/NotFoundPage";
 import InterviewPage from "views/InterviewPage/Interview1";
+import QuestionPage from "views/InterviewPage/Interview2";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
@@ -26,6 +27,7 @@ root.render(
       <Route path="/register-page" exact element={<Register />} />
       <Route path="/dashboard-page" exact element={<Dashboard />} />
       <Route path="/interview-page-1" exact element={<InterviewPage />} />
+      <Route path="/interview-page-2" exact element={<QuestionPage />} />
 
 
 

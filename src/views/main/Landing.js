@@ -1,5 +1,5 @@
 import React from "react";
-import { Container, Row, Col, Button, Card, CardBody, CardTitle, CardText } from "reactstrap";
+import { Container, Row, Col, Button, CardBody, CardTitle, CardText } from "reactstrap";
 import SimpleFooter from "components/Footers/SimpleFooter";
 import DemoNavbar from "components/Navbars/DemoNavbar"; // Assuming this component exists
 import { useNavigate } from "react-router-dom"; // Import useNavigate hook
