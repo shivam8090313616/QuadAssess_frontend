@@ -1,74 +1,154 @@
-import React, { useState, useEffect, useRef } from "react";
-import { Container, Collapse, Card, CardHeader, CardBody, Button, Row, Col, Input, Tooltip } from "reactstrap";
-import DemoNavbar from "components/Navbars/DemoNavbar";
-import SimpleFooter from "components/Footers/SimpleFooter";
+import React, { useState, useEffect } from "react";
+import {
+  Container,
+  Button,
+  Row,
+  Col,
+  Input,
+  Progress,
+  Card,
+  CardHeader,
+  CardBody,
+  Tooltip,
+  Collapse,
+} from "reactstrap";
+import {
+  FaArrowAltCircleDown,
+  FaArrowAltCircleUp,
+  FaArrowLeft,
+  FaArrowRight,
+  FaQuestionCircle,
+} from "react-icons/fa";
 import { InterviewQuestion } from "api"; // Assuming InterviewQuestion is exported from "api"
-import { FaArrowAltCircleDown, FaArrowAltCircleUp, FaArrowLeft, FaArrowRight, FaArrowUp, FaQuestionCircle } from "react-icons/fa"; // Import icons for navigation
+import WarningAlert from "./WarningAlert"; // Assuming a WarningAlert component
+import DemoNavbar from "components/Navbars/DemoNavbar";
+import { Navigate, useNavigate } from "react-router-dom";
+import { SubmitAnswer } from "api";
 
 const QuestionPage = () => {
-  const [questions, setQuestions] = useState([]); // State to store fetched questions
-  const [loading, setLoading] = useState(true); // State to handle loading state
-  const [currentIndex, setCurrentIndex] = useState(0); // State to track the current question index
-  const [answers, setAnswers] = useState([]); // State to track student's answers for each question
-  const [open, setOpen] = useState(null); // State to track which answer is open for the accordion
-  const [tooltipOpen, setTooltipOpen] = useState(false); // State for tooltips
-  const mainRef = useRef(null); // Create a ref for the main element
-
+  const [questions, setQuestions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [answers, setAnswers] = useState([]);
+  const [open, setOpen] = useState(null);
+  const [tooltipOpen, setTooltipOpen] = useState(false);
+  const [timeRemaining, setTimeRemaining] = useState(1800); // 30 minutes in seconds
+  const [isTimerRunning, setIsTimerRunning] = useState(true);
+  const navigate = useNavigate();
   useEffect(() => {
     const interviewUser = JSON.parse(localStorage.getItem("inertviewuser"));
     if (interviewUser) {
-      GetQuestion(interviewUser);  // Fetch questions using the stored user data
+      GetQuestion(interviewUser);
     } else {
-      setLoading(false); // No user data found, stop loading
+      setLoading(false);
     }
-  }, []); // Empty dependency array ensures this runs only once when the component mounts
 
-  // Function to fetch interview questions based on the user data
+    // Timer countdown logic
+    if (isTimerRunning) {
+      const timerInterval = setInterval(() => {
+        setTimeRemaining((prevTime) => {
+          if (prevTime <= 0) {
+            clearInterval(timerInterval);
+            setIsTimerRunning(false);
+          }
+          return prevTime - 1;
+        });
+      }, 1000);
+
+      return () => clearInterval(timerInterval); // Clean up the interval on unmount
+    }
+  }, [isTimerRunning]);
+
+  // Fetch interview questions
   const GetQuestion = async (data) => {
     try {
-      const response = await InterviewQuestion(data); // API call to fetch questions
+      const response = await InterviewQuestion(data);
       setQuestions(response.questions);
-      setLoading(false); // Set loading to false once the data is fetched
+      setLoading(false);
     } catch (error) {
       console.error("Error fetching questions:", error);
-      setLoading(false); // Set loading to false in case of error
+      setLoading(false);
     }
   };
 
-  // Function to handle answer change in the textarea
+  // Handle answer change
   const handleAnswerChange = (e) => {
     const updatedAnswers = [...answers];
     updatedAnswers[currentIndex] = e.target.value;
     setAnswers(updatedAnswers);
   };
 
-  // Function to navigate to the next question
+  // Go to the next question
   const goToNext = () => {
     if (currentIndex < questions.length - 1) {
-      setCurrentIndex(currentIndex + 1); // Move to the next question
+      setCurrentIndex(currentIndex + 1);
     }
   };
 
-  // Function to navigate to the previous question
+  // Go to the previous question
   const goToPrevious = () => {
     if (currentIndex > 0) {
-      setCurrentIndex(currentIndex - 1); // Move to the previous question
+      setCurrentIndex(currentIndex - 1);
     }
   };
 
-  // Function to toggle the accordion for showing/hiding answers
   const toggleAnswer = (index) => {
-    setOpen(open === index ? null : index); // Toggle open state for the accordion item
+    setOpen(open === index ? null : index);
   };
 
-  // Tooltip toggle for help icon
   const toggleTooltip = () => setTooltipOpen(!tooltipOpen);
+
+  const handleSubmit = async (e) => {
+   
+    e.preventDefault();
+    setLoading(true);
+  
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+    if (!storedUser?.uid) {
+      console.error("User not found in localStorage");
+      setLoading(false);
+      return;
+    }
+  
+    const response = await SubmitAnswer(
+      questions.map((question, index) => ({
+        questionId: question.id,
+        answer: answers[index] || "",
+      })),
+      storedUser.uid
+    );
+  
+    if (response.message === "Answers submitted successfully!") {
+      setAnswers([]);
+      setCurrentIndex(0);
+      navigate("/pending-page");
+    } else {
+      console.error("Error:", response);
+    }
+  
+    setLoading(false);
+  };
+  
+
+  // Convert seconds into MM:SS format
+  const formatTime = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${String(minutes).padStart(2, "0")}:${String(
+      remainingSeconds
+    ).padStart(2, "0")}`;
+  };
+
+  // Check if the current answer is empty or not
+  const isAnswerValid = (index) => {
+    return answers[index] && answers[index].trim().length > 0;
+  };
 
   return (
     <>
       <DemoNavbar />
-      <main ref={mainRef}>
-        <section className="section section-lg section-shaped bg-gradient-primary">
+      <main>
+        <section className="section section-lg section-shaped bg-gradient-blue">
           <div className="shape shape-style-1">
             <span />
             <span />
@@ -80,113 +160,156 @@ const QuestionPage = () => {
             <span />
           </div>
           <Container className="text-white">
-            <h1 className="display-4 mb-5">Interview Questions</h1>
+            <WarningAlert />
             {loading ? (
               <p>Loading...</p>
             ) : (
               <>
                 {questions.length > 0 ? (
-                  <div>
-                    <Card className="mb-4 border-light shadow-lg">
-                      <CardHeader className="bg-dark text-white d-flex justify-content-between">
-                        <h5 className="text-white">{questions[currentIndex].question_text}</h5>
-                        <div>
-                          <span>
-                            <FaQuestionCircle
-                              id="tooltip-help"
-                              className="text-info ml-2"
-                              size="1.5em"
-                            />
-                            <Tooltip
-                              placement="top"
-                              isOpen={tooltipOpen}
-                              target="tooltip-help"
-                              toggle={toggleTooltip}
-                            >
-                              Need help with this question? Reach out to your mentor.
-                            </Tooltip>
-                          </span>
-                          <span>
-                            <Button
-                              color="info"
-                              onClick={() => toggleAnswer(currentIndex)} // Toggle the answer
-                              className="w-100 mt-2"
-                            >
-                              {open === currentIndex ? <FaArrowAltCircleUp /> : <FaArrowAltCircleDown />}
-                            </Button>
-                          </span>
-                        </div>
-                      </CardHeader>
-                      <Collapse isOpen={open === currentIndex}>
-                        <CardBody className="bg-light text-primary rounded p-3">
-                          <div
-                            dangerouslySetInnerHTML={{
-                              __html: questions[currentIndex].answer.answer_text,
-                            }}
+                  <form onSubmit={handleSubmit}>
+                    <Row className="mt-4">
+                      <Col className=" " xs="12" md="4">
+                        <h3 className="text-center bg-white rounded text-primary mb-3">
+                          Interview Questions
+                        </h3>
+                      </Col>
+                      <Col xs="12" md="8">
+                        <div className="w-100 text-center mb-4 bg-white rounded ">
+                          <h5 className="text-primary">Time Remaining</h5>
+                          <h3 className="text-primary">
+                            {formatTime(timeRemaining)}
+                          </h3>
+                          <Progress
+                            color="primary"
+                            className="border border-white bg-white"
+                            value={(timeRemaining / 1800) * 100}
                           />
-                        </CardBody>
-                      </Collapse>
-                    </Card>
-
-                    {/* Textarea for student's answer */}
-                    <Row className="mt-3">
-                      <Col>
-                        <Input
-                          type="textarea"
-                          value={answers[currentIndex] || ""}
-                          onChange={handleAnswerChange}
-                          placeholder="Write your answer here..."
-                          className="border-0 shadow-lg"
-                          rows="4"
-                          style={{ resize: "none" }}
-                        />
+                        </div>
                       </Col>
                     </Row>
+                    <Row>
+                      {/* Left Side Stepper */}
+                      <Col xs="12" md="4" className="mb-4">
+                        <div className="d-flex flex-column align-items-center">
+                          {questions.map((question, index) => (
+                            <Button
+                              key={question.id}
+                              color={
+                                isAnswerValid(index)
+                                  ? index === currentIndex
+                                    ? "primary"
+                                    : "secondary"
+                                  : "danger"
+                              }
+                              className="mb-2 w-100"
+                              onClick={() => setCurrentIndex(index)}
+                            >
+                              Question {index + 1}
+                            </Button>
+                          ))}
+                        </div>
+                      </Col>
 
-                    {/* Stepper Buttons */}
-                    <Row className="mt-3">
-                      <Col className="d-flex justify-content-between">
-                        <Button
-                          color="secondary"
-                          onClick={goToPrevious}
-                          disabled={currentIndex === 0} // Disable when it's the first question
-                          className="w-45"
-                        >
-                          <FaArrowLeft /> Previous
-                        </Button>
-                        <Button
-                          color="primary"
-                          onClick={goToNext}
-                          disabled={currentIndex === questions.length - 1} // Disable when it's the last question
-                          className="w-45"
-                        >
-                          Next <FaArrowRight />
-                        </Button>
+                      {/* Right Side Countdown Timer */}
+                      <Col
+                        xs="12"
+                        md="8"
+                        className="d-flex flex-column align-items-center"
+                      >
+                        <Card className="mb-4 border-light shadow-lg w-100">
+                          <CardHeader className="bg-dark text-white d-flex justify-content-between">
+                            <h5 className="text-white">
+                              {questions[currentIndex].question_text}
+                            </h5>
+                            <div>
+                              {/* Tooltip for additional help */}
+                              <span>
+                                <FaQuestionCircle
+                                  id="tooltip-help"
+                                  className="text-info ml-2"
+                                  size="1.5em"
+                                />
+                                <Tooltip
+                                  placement="top"
+                                  isOpen={tooltipOpen}
+                                  target="tooltip-help"
+                                  toggle={toggleTooltip}
+                                >
+                                  Need help with this question? Reach out to
+                                  your mentor.
+                                </Tooltip>
+                              </span>
+                            </div>
+                          </CardHeader>
+                          {/* Collapsible answer section */}
+                          <Collapse isOpen={open === currentIndex}>
+                            <CardBody className="bg-light text-primary rounded p-3">
+                              <div
+                                dangerouslySetInnerHTML={{
+                                  __html:
+                                    questions[currentIndex].answer.answer_text,
+                                }}
+                              />
+                            </CardBody>
+                          </Collapse>
+                        </Card>
+
+                        {/* Input area for the answer */}
+                        <Row className="mt-3">
+                          <Col>
+                            <Input
+                              type="textarea"
+                              value={answers[currentIndex] || ""}
+                              onChange={handleAnswerChange}
+                              placeholder="Write your answer here..."
+                              className={`border-0 shadow-lg ${
+                                isAnswerValid(currentIndex)
+                                  ? ""
+                                  : "border-danger"
+                              }`}
+                              rows="4"
+                              cols="100"
+                              style={{ resize: "none" }}
+                            />
+                          </Col>
+                        </Row>
+
+                        {/* Navigation buttons */}
+                        <div className="mt-3 d-flex justify-content-between w-100">
+                          {currentIndex > 0 && (
+                            <Button color="secondary" onClick={goToPrevious}>
+                              <FaArrowLeft /> Previous
+                            </Button>
+                          )}
+
+                          {/* Check if it's the last question to show the Submit button */}
+                          {currentIndex < questions.length - 1 && (
+                            <Button color="primary" onClick={goToNext}>
+                              Next <FaArrowRight />
+                            </Button>
+                          )}
+
+                          {/* Show Submit button if it's the last question */}
+                          {currentIndex === questions.length - 1 && (
+                            <Button
+                              color="success"
+                              type="submit" // Trigger form submission
+                            >
+                              Submit <FaArrowRight />
+                            </Button>
+                          )}
+                        </div>
                       </Col>
                     </Row>
-
-                    {/* Skip Button */}
-                    <Row className="mt-2">
-                      <Col className="text-center">
-                        <Button
-                          color="warning"
-                          onClick={goToNext} // Skip to next question without answering
-                          className="w-50"
-                        >
-                          Skip Question
-                        </Button>
-                      </Col>
-                    </Row>
-                  </div>
+                  </form>
                 ) : (
-                  <p>No questions found.</p>
+                  <p>No questions available</p>
                 )}
               </>
             )}
           </Container>
         </section>
       </main>
-      <SimpleFooter />
     </>
   );
 };

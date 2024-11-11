@@ -1,4 +1,3 @@
-
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
@@ -15,24 +14,71 @@ import Dashboard from "views/main/Dashboard";
 import NotFoundPage from "views/404/NotFoundPage";
 import InterviewPage from "views/InterviewPage/Interview1";
 import QuestionPage from "views/InterviewPage/Interview2";
+import ProtectedRoute from "./ProtectedRoute"; // Import the ProtectedRoute component
+import Pending from "views/InterviewPage/Pending";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
 root.render(
   <BrowserRouter>
     <Routes>
-      <Route path="/" exact element={<Landing />} />
-      <Route path="/login-page" exact element={<Login />} />
-      <Route path="/profile-page" exact element={<Profile />} />
-      <Route path="/register-page" exact element={<Register />} />
-      <Route path="/dashboard-page" exact element={<Dashboard />} />
-      <Route path="/interview-page-1" exact element={<InterviewPage />} />
-      <Route path="/interview-page-2" exact element={<QuestionPage />} />
-
-
-
-      <Route path="/Not-Found" exact element={<NotFoundPage />} />
-      <Route path="*" element={<Navigate to="Not-Found" replace />} />
+      <Route path="/login-page" element={<Login />} />
+      <Route path="/register-page" element={<Register />} />
+      //protected routes which are not working if user can't login
+      <Route
+        path="/"
+        element={
+          <ProtectedRoute>
+            {" "}
+            <Landing />{" "}
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/profile-page"
+        element={
+          <ProtectedRoute>
+            {" "}
+            <Profile />{" "}
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard-page"
+        element={
+          <ProtectedRoute>
+            {" "}
+            <Dashboard />{" "}
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/interview-page-1"
+        element={
+          <ProtectedRoute>
+            {" "}
+            <InterviewPage />{" "}
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/interview-page-2"
+        element={
+          <ProtectedRoute>
+            <QuestionPage />{" "}
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/pending-page"
+        element={
+          <ProtectedRoute>
+            <Pending />{" "}
+          </ProtectedRoute>
+        }
+      />
+      <Route path="/Not-Found" element={<NotFoundPage />} />
+      <Route path="*" element={<Navigate to="/Not-Found" replace />} />
     </Routes>
   </BrowserRouter>
 );

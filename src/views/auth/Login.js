@@ -77,7 +77,7 @@ const Login = () => {
               <Card className="bg-secondary shadow border-0">
                 <CardHeader className="bg-white">
                   <div className="text-muted text-center">
-                    <h3>Quad Pulse <i className="ni ni-user-run ml-1" style={{fontSize:"16px", fontWeight:"bold"}}/></h3>
+                    <h3>Quad Assess <i className="ni ni-user-run ml-1" style={{fontSize:"16px", fontWeight:"bold"}}/></h3>
                   </div>
                   <Progress value={(currentStep) * 100} />
                 </CardHeader>

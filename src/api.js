@@ -51,5 +51,15 @@ const InterviewQuestion = async (data) => {
     throw error;  // Rethrow the error to be handled by the calling function
   }
 };
+const SubmitAnswer = async (data,uid) => {
 
-export { loginUser, registerUser, fetchDesignationsAndPositionsApi,InterviewUserSubmit,InterviewQuestion };
+  try {
+    const response = await api.post("/interview-Answer", {data:data,uid:uid});
+    return response.data;
+  } catch (error) {
+    console.error("Error submitting answers:", error);
+    throw error;
+  }
+};
+
+export { loginUser, registerUser, fetchDesignationsAndPositionsApi,InterviewUserSubmit,InterviewQuestion, SubmitAnswer };
