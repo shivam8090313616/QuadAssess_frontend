@@ -35,7 +35,7 @@ const fetchDesignationsAndPositionsApi = async () => {
 };
 const InterviewUserSubmit = async (data) => {
   try {
-    const response = await api.post("/submit-interview-user",data);
+    const response = await api.post("/submit-interview-user", data);
     return response.data;
   } catch (error) {
     console.error("Error fetching designations and positions:", error);
@@ -44,22 +44,66 @@ const InterviewUserSubmit = async (data) => {
 };
 const InterviewQuestion = async (data) => {
   try {
-    const response = await api.post("/interview-question", data);  // Make sure this endpoint is correct
-    return response.data;  // Return the fetched data
+    const response = await api.post("/interview-question", data); // Make sure this endpoint is correct
+    return response.data; // Return the fetched data
   } catch (error) {
     console.error("Error fetching interview questions:", error);
-    throw error;  // Rethrow the error to be handled by the calling function
+    throw error; // Rethrow the error to be handled by the calling function
   }
 };
-const SubmitAnswer = async (data,uid) => {
-
+const SubmitAnswer = async (data, uid) => {
   try {
-    const response = await api.post("/interview-Answer", {data:data,uid:uid});
+    const response = await api.post("/interview-Answer", {
+      data: data,
+      uid: uid,
+    });
     return response.data;
   } catch (error) {
     console.error("Error submitting answers:", error);
     throw error;
   }
 };
+const IneterviewUserList = async (name, email) => {
+  try {
+    const response = await api.post("/interviewuser", {
+      name: name,
+      email: email,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching interview user list:", error);
+    throw error;
+  }
+};
+const IneterviewUserAnserList = async (email) => {
+  try {
+    const response = await api.post("interviewuser-answer", {
+      email: email,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching interview user list:", error);
+    throw error;
+  }
+};
+const CreateReport = async (data) => {
+  try {
+    const response = await api.post("checked-answer",data);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching interview user list:", error);
+    throw error;
+  }
+};
 
-export { loginUser, registerUser, fetchDesignationsAndPositionsApi,InterviewUserSubmit,InterviewQuestion, SubmitAnswer };
+export {
+  loginUser,
+  registerUser,
+  fetchDesignationsAndPositionsApi,
+  InterviewUserSubmit,
+  InterviewQuestion,
+  SubmitAnswer,
+  IneterviewUserList,
+  IneterviewUserAnserList,
+  CreateReport
+};

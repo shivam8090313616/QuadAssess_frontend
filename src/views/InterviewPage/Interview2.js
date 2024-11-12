@@ -19,8 +19,8 @@ import {
   FaArrowRight,
   FaQuestionCircle,
 } from "react-icons/fa";
-import { InterviewQuestion } from "api"; // Assuming InterviewQuestion is exported from "api"
-import WarningAlert from "./WarningAlert"; // Assuming a WarningAlert component
+import { InterviewQuestion } from "api";
+import WarningAlert from "./WarningAlert"; 
 import DemoNavbar from "components/Navbars/DemoNavbar";
 import { Navigate, useNavigate } from "react-router-dom";
 import { SubmitAnswer } from "api";
@@ -32,7 +32,7 @@ const QuestionPage = () => {
   const [answers, setAnswers] = useState([]);
   const [open, setOpen] = useState(null);
   const [tooltipOpen, setTooltipOpen] = useState(false);
-  const [timeRemaining, setTimeRemaining] = useState(1800); // 30 minutes in seconds
+  const [timeRemaining, setTimeRemaining] = useState(1800);
   const [isTimerRunning, setIsTimerRunning] = useState(true);
   const navigate = useNavigate();
   useEffect(() => {
@@ -55,11 +55,11 @@ const QuestionPage = () => {
         });
       }, 1000);
 
-      return () => clearInterval(timerInterval); // Clean up the interval on unmount
+      return () => clearInterval(timerInterval); 
     }
   }, [isTimerRunning]);
 
-  // Fetch interview questions
+
   const GetQuestion = async (data) => {
     try {
       const response = await InterviewQuestion(data);
@@ -71,7 +71,6 @@ const QuestionPage = () => {
     }
   };
 
-  // Handle answer change
   const handleAnswerChange = (e) => {
     const updatedAnswers = [...answers];
     updatedAnswers[currentIndex] = e.target.value;

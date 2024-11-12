@@ -16,6 +16,9 @@ import InterviewPage from "views/InterviewPage/Interview1";
 import QuestionPage from "views/InterviewPage/Interview2";
 import ProtectedRoute from "./ProtectedRoute"; // Import the ProtectedRoute component
 import Pending from "views/InterviewPage/Pending";
+import AnswerSheet from "views/InterviewPage/AnswerSheet";
+import InterviewUserPage from "views/InterviewPage/AnswerSheet";
+import AnswerSheetUser from "views/InterviewPage/AnswerSheet2";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
@@ -77,6 +80,22 @@ root.render(
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/Interviewuser-page"
+        element={
+          <ProtectedRoute>
+            <InterviewUserPage />{" "}
+          </ProtectedRoute>
+        }
+      />
+     <Route
+  path="/send-email/:email" // Use /:email instead of :email
+  element={
+    <ProtectedRoute>
+      <AnswerSheetUser />
+    </ProtectedRoute>
+  }
+/>
       <Route path="/Not-Found" element={<NotFoundPage />} />
       <Route path="*" element={<Navigate to="/Not-Found" replace />} />
     </Routes>
