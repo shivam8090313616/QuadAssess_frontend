@@ -1,139 +1,263 @@
 import { IneterviewUserAnserList, CreateReport } from "api";
 import DemoNavbar from "components/Navbars/DemoNavbar";
 import { useEffect, useRef, useState } from "react";
-import { Form, Button, Card, Container, Modal } from "reactstrap";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { FaBookOpen, FaTimes } from "react-icons/fa";
+import {
+  Form,
+  Button,
+  Card,
+  Container,
+  Row,
+  Col,
+  Progress,
+  InputGroup,
+  InputGroupText,
+  CardHeader,
+} from "reactstrap";
+import { useNavigate, useParams } from "react-router-dom";
+import { FaBookOpen, FaCheckCircle, FaTimesCircle } from "react-icons/fa";
+import { Bar } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
 
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+);
 const SendEmailPage = () => {
   const mainRef = useRef(null);
   const navigate = useNavigate();
   const { email } = useParams();
   const [data, setData] = useState([]);
   const [marks, setMarks] = useState({});
-  const [showModal, setShowModal] = useState(false);
   const [totalMarks, setTotalMarks] = useState(0);
   const [percentage, setPercentage] = useState(0);
-  const [reportData, setReportData] = useState(null);
+  const [correctAnswers, setCorrectAnswers] = useState(0);
+  const [incorrectAnswers, setIncorrectAnswers] = useState(0);
 
-  
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await IneterviewUserAnserList(email);
-        setData(Array.isArray(response.users) ? response.users : []); // Ensure data is an array
+        setData(Array.isArray(response.users) ? response.users : []);
       } catch (error) {
         console.error("Error fetching data:", error);
-        setData([]); // Set to an empty array if there's an error
+        setData([]);
       }
     };
-
     fetchData();
   }, [email]);
 
-  // Handle mark changes for each question
   const handleMarkChange = (question, value) => {
-    setMarks((prevMarks) => ({
-      ...prevMarks,
-      [question]: value,
-    }));
-  };
+    const mark = parseInt(value, 10) || 0;
 
-  // Calculate total and percentage, and create a report
-  const calculateResults = async () => {
-    let total = 0;
-    let correctAnswers = 0;
+    setMarks((prevMarks) => ({ ...prevMarks, [question]: mark }));
+    let newTotal = 0;
+    let newCorrectAnswers = 0;
 
     data.forEach((item) => {
-      const mark = parseInt(marks[item.question], 10) || 0;
-      total += mark;
-      if (mark > 0) correctAnswers++;
+      const questionMark = parseInt(marks[item.question] || 0, 10);
+      newTotal += questionMark;
+      if (questionMark > 0) newCorrectAnswers++;
     });
 
-    const incorrectAnswers = data.length - correctAnswers;
-    const percentage = (total / (data.length * 5)) * 100;
-    setTotalMarks(total);
-    setPercentage(percentage);
+    const newIncorrectAnswers = data.length - newCorrectAnswers;
+    const newPercentage = (newTotal / (data.length * 5)) * 100;
 
-    // Create report data
-    const newReportData = {
+    setTotalMarks(newTotal);
+    setPercentage(newPercentage);
+    setCorrectAnswers(newCorrectAnswers);
+    setIncorrectAnswers(newIncorrectAnswers);
+  };
+  const saveReport = async () => {
+    const reportData = {
       email: email,
-      score: total,
+      score: totalMarks,
       correct_answers: correctAnswers,
       incorrect_answers: incorrectAnswers,
     };
 
-    setReportData(newReportData); // Store report data in state
-
     try {
-      await CreateReport(newReportData); // Send report data to API
+      await CreateReport(reportData);
     } catch (error) {
       console.error("Error creating report:", error);
     }
+  };
+  const correctIncorrectData = {
+    labels: ["Correct", "Incorrect"],
+    datasets: [
+      {
+        label: "Answers",
+        data: [correctAnswers, incorrectAnswers],
+        backgroundColor: ["#4CAF50", "#F44336"],
+        borderColor: ["#388E3C", "#D32F2F"],
+        borderWidth: 1,
+      },
+    ],
+  };
 
-    setShowModal(true);
+  const marksDataChart = {
+    labels: data.map((_, index) => `Q${index + 1}`),
+    datasets: [
+      {
+        label: "Marks per Question",
+        data: data.map((item) => marks[item.question] || 0),
+        backgroundColor: "#42A5F5",
+        borderColor: "#1E88E5",
+        borderWidth: 1,
+      },
+    ],
   };
 
   return (
     <>
       <DemoNavbar />
-      <main ref={mainRef}>
-        <section className="section section-lg section-shaped bg-gradient-info">
-          <Container>
-            <div className="card mb-4 p-3 shadow-sm">
-              {/* Ensure data is an array before mapping */}
-              {Array.isArray(data) && data.map((item, index) => (
-                <Card className="mb-3" key={index}>
-                  <div className="card-header">
-                    <strong>Question:</strong> {item.question}
-                  </div>
-                  <div className="card-body">
-                    <p><strong>User Answer:</strong> {item.User_answer}</p>
-                    <p><strong>Corrected Answer:</strong> {item.corrected_answer}</p>
-                    <Form>
-                      <label htmlFor={`marksInput-${index}`}>Enter Marks (0-5)</label>
-                      <input
-                        type="number"
-                        id={`marksInput-${index}`}
-                        min="0"
-                        max="5"
-                        value={marks[item.question] || ""}
-                        onChange={(e) => handleMarkChange(item.question, e.target.value)}
-                        className="form-control mt-2"
-                      />
-                    </Form>
-                  </div>
-                </Card>
-              ))}
+      <main ref={mainRef} className="bg-light">
+        <section className="section section-lg section-shaped bg-gradient-blue">
+          <div className="shape shape-style-1">
+            <span />
+            <span />
+            <span />
+            <span />
+            <span />
+            <span />
+            <span />
+            <span />
+          </div>
+          <Container className="py-5">
+            <Card className="text-primary">
+              <CardHeader>
+                <strong>{email}'s Answer Sheet</strong>
+              </CardHeader>
+            </Card>
+            <div className="card shadow-sm border-0 rounded-3 p-4 bg-white">
+              {Array.isArray(data) &&
+                data.map((item, index) => (
+                  <Card className="mb-4 shadow-sm border-light" key={index}>
+                    <div className="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                      <h5 className="m-0">
+                        <strong className="text-white">
+                          Question {index + 1}
+                        </strong>
+                      </h5>
+                    </div>
+                    <div className="card-body">
+                      <Row>
+                        <Col md="6">
+                          <p className="mb-1 text-warning">
+                            <strong>User Answer: </strong>
+                            <span className="text-dark">
+                              {item.User_answer}
+                            </span>
+                          </p>
+                          <p className="mb-1 text-success">
+                            <strong className="">Correct Answer: </strong>
+                            <span className="text-dark">
+                              {item.corrected_answer}
+                            </span>
+                          </p>
+                        </Col>
+                      </Row>
+                      <Form>
+                        <InputGroup className="mt-3">
+                          <InputGroupText>Marks (0-5)</InputGroupText>
+                          <input
+                            type="number"
+                            min="0"
+                            max="5"
+                            value={marks[item.question] || ""}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              if (value >= 0 && value <= 5) {
+                                handleMarkChange(item.question, value);
+                              } else {
+                                e.preventDefault();
+                              }
+                            }}
+                            className="form-control pl-3"
+                            step="1"
+                          />
+                        </InputGroup>
+                      </Form>
+                    </div>
+                  </Card>
+                ))}
             </div>
 
-            {/* Button to submit marks and create report */}
-            <Button color="primary" className="mt-3 w-100" onClick={calculateResults}>
-              Submit Marks & Create Report
-            </Button>
+            <Card className="text-primary mt-4">
+              <CardHeader>{email}'s Answer Chart</CardHeader>
+            </Card>
+            <div className="card shadow-sm border-0 rounded-3 p-4 bg-white mb-4">
+              <Row className="text-center align-items-center">
+                <Col md="4">
+                  <h5>Total Marks</h5>
+                  <div className="display-4 text-primary">
+                    {totalMarks} / 50
+                  </div>
+                </Col>
+                <Col md="4">
+                  <h5>Percentage</h5>
+                  <div className="position-relative d-flex justify-content-center align-items-center">
+                    <div
+                      className="circular-progress"
+                      style={{ width: "80px", height: "80px" }}
+                    >
+                      <Progress
+                        value={percentage}
+                        color="success"
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          borderRadius: "50%",
+                          clipPath: "circle(50% at 50% 50%)",
+                        }}
+                      />
+                    </div>
+                    <span className="position-absolute text-dark font-weight-bold">
+                      {percentage.toFixed(2)}%
+                    </span>
+                  </div>
+                </Col>
+                <Col md="4">
+                  <h5>Correct / Incorrect</h5>
+                  <Bar
+                    data={correctIncorrectData}
+                    options={{
+                      responsive: true,
+                      plugins: { legend: { position: "top" } },
+                    }}
+                  />
+                </Col>
+              </Row>
+              <h5>Marks per Question</h5>
+              <Bar
+                data={marksDataChart}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: { legend: { position: "top" } },
+                }}
+                style={{ maxHeight: "300px" }}
+              />{" "}
+            </div>
 
-            {/* Modal to display results and finalize report */}
-            <Modal isOpen={showModal} toggle={() => setShowModal(false)}>
-              <div className="modal-header">
-                <h5 className="modal-title">Report Summary</h5>
-                <button className="btn btn-sm rounded btn-danger" onClick={() => setShowModal(false)} ><FaTimes/></button>
-              </div>
-              <div className="modal-body">
-                <p><strong>Total Marks:</strong> {totalMarks}</p>
-                <p><strong>Percentage:</strong> {percentage.toFixed(2)}%</p>
-                {reportData && ( // Check if reportData exists before displaying
-                  <>
-                    <p><strong>Correct Answers:</strong> {reportData.correct_answers}</p>
-                    <p><strong>Incorrect Answers:</strong> {reportData.incorrect_answers}</p>
-                  </>
-                )}
-              </div>
-              <div className="modal-footer">
-                <Button color="success" onClick={() => navigate("/Interviewuser-page")}>
-                  <FaBookOpen className="mr-2" /> Another Sheet
-                </Button>
-              </div>
-            </Modal>
+            <Button
+              color="success"
+              className="mt-0 w-100 py-3 text-uppercase font-weight-bold shadow-sm"
+              onClick={saveReport}
+            >
+              Save Report
+            </Button>
           </Container>
         </section>
       </main>
