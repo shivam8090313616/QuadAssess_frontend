@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from 'react-router-dom';
 import {
   Button,
@@ -16,9 +16,9 @@ import {
   Col,
   Progress,
 } from "reactstrap";
-import { fetchDesignationsAndPositionsApi } from "api"; // Adjust the import as necessary
+import { fetchDesignationsAndPositionsApi } from "api"; 
 import axios from "axios"; 
-import Select from "react-select"; // Ensure you have this installed if you're using react-select
+import Select from "react-select"; 
 
 const Register = () => {
   const navigate = useNavigate();
@@ -29,7 +29,7 @@ const Register = () => {
     password: '',
     country: '',
     state: '',
-    account_type: 'Student', // Default value
+    account_type: 'Student',
     phone: '',
     address: '',
     designation: '',
@@ -39,6 +39,19 @@ const Register = () => {
   });
   const [designations, setDesignations] = useState([]);
   const [positions, setPositions] = useState([]);
+
+  const fetchDesignationsAndPositions = useCallback(async () => {
+    try {
+      const response = await fetchDesignationsAndPositionsApi(); 
+      if (response) {
+        setDesignations(response.designations); 
+        setPositions(response.positions); 
+      }
+    } catch (error) {
+      console.error(error);
+      setFormData({ ...formData, error: "Failed to fetch designations and positions." });
+    }
+  }, [formData]); 
 
   useEffect(() => {
     fetchDesignationsAndPositions();
@@ -54,19 +67,6 @@ const Register = () => {
 
   const prevStep = () => {
     setCurrentStep((prev) => prev - 1);
-  };
-
-  const fetchDesignationsAndPositions = async () => {
-    try {
-      const response = await fetchDesignationsAndPositionsApi(); // Use the imported function
-      if (response) {
-        setDesignations(response.designations); // Adjust according to your API response structure
-        setPositions(response.positions); // Adjust according to your API response structure
-      }
-    } catch (error) {
-      console.error(error);
-      setFormData({ ...formData, error: "Failed to fetch designations and positions." });
-    }
   };
 
   const onSubmit = async (e) => {
@@ -95,6 +95,7 @@ const Register = () => {
       setTimeout(() => {
         navigate("/login-page");
       }, 2000);
+      console.log(response)
     } catch (error) {
       console.error("Error registering user:", error);
       setFormData({ ...formData, error: "Registration failed. Please try again." });
@@ -273,13 +274,21 @@ const Register = () => {
                           </InputGroup>
                         </FormGroup>
                         <FormGroup>
-                          <Select
-                            name="designation"
-                            options={designations.map(d => ({ value: d.title, label: d.title }))}
-                            placeholder="Select Designation"
-                            onChange={(selected) => setFormData({ ...formData, designation: selected.value })}
-                            isClearable
-                          />
+                          <InputGroup className="input-group-alternative mb-3">
+                            <InputGroupAddon addonType="prepend">
+                              <InputGroupText>
+                                <i className="ni ni-map-big" />
+                              </InputGroupText>
+                            </InputGroupAddon>
+                            <Input
+                              name="designation"
+                              placeholder="Designation"
+                              type="text"
+                              value={formData.designation}
+                              onChange={handleChange}
+                              required
+                            />
+                          </InputGroup>
                         </FormGroup>
                         <FormGroup>
                           <Select
@@ -294,31 +303,20 @@ const Register = () => {
                     )}
                     <div className="text-center">
                       {currentStep > 1 && (
-                        <Button className="btn-neutral" color="default" onClick={prevStep}>
-                          Previous
+                        <Button color="default" onClick={prevStep} className="mr-2">
+                          Back
                         </Button>
                       )}
-                      {currentStep < 3 && (
-                        <Button className="btn-neutral" color="default" onClick={nextStep}>
+                      {currentStep < 3 ? (
+                        <Button color="primary" onClick={nextStep}>
                           Next
                         </Button>
-                      )}
-                      {currentStep === 3 && (
-                        <Button className="btn-neutral" color="default" type="submit">
+                      ) : (
+                        <Button color="primary" type="submit">
                           Submit
                         </Button>
                       )}
                     </div>
-                    {formData.successMessage && (
-                      <div className="text-success mt-3">
-                        {formData.successMessage}
-                      </div>
-                    )}
-                    {formData.error && (
-                      <div className="text-danger mt-3">
-                        {formData.error}
-                      </div>
-                    )}
                   </Form>
                 </CardBody>
               </Card>

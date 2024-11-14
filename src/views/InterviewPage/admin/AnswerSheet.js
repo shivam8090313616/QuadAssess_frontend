@@ -10,6 +10,20 @@ import DemoNavbar from "components/Navbars/DemoNavbar";
 import SimpleFooter from "components/Footers/SimpleFooter";
 import { IneterviewUserList } from "api"; // Adjust path as needed
 import { useNavigate } from "react-router-dom"; // Import useNavigate for redirection
+import {
+  FaCheck,
+  FaCodeBranch,
+  FaHatCowboy,
+  FaIdCard,
+  FaLayerGroup,
+  FaMarsStroke,
+  FaMarsStrokeH,
+  FaPenNib,
+  FaStar,
+  FaStarHalf,
+  FaTimes,
+  FaTimesCircle,
+} from "react-icons/fa";
 
 function InterviewUserPage() {
   const [name, setName] = useState(""); // State for name filter
@@ -45,7 +59,7 @@ function InterviewUserPage() {
 
   // Redirect to email page (you can modify this link or logic as needed)
   const handleEmailRedirect = (email) => {
-    navigate(`/send-email/${email}`); // Use /${email} instead of ?email=
+    navigate(`/answersheet/${email}`); // Use /${email} instead of ?email=
   };
 
   return (
@@ -65,14 +79,14 @@ function InterviewUserPage() {
           </div>
           <Container className="text-white">
             <div className="d-flex justify-content-between align-items-center mb-4">
-              <h2 className="text-white">Interview User List</h2>
+              <h2 className="text-white"><strong>Interview User List</strong></h2>
               <div className="d-flex">
                 <input
                   type="text"
                   placeholder="Filter by Name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="filter-input form-control me-2"
+                  className="filter-input form-control me-2 mr-3"
                   style={{ maxWidth: "200px" }}
                 />
                 <input
@@ -89,43 +103,88 @@ function InterviewUserPage() {
             {/* Table to display user list */}
             <Table hover responsive className="bg-white text-dark">
               <thead className="table-header">
-                <tr>
-                  <th>Name</th>
-                  <th>Email</th>
-                  <th>Experience Level</th>
-                  <th>Role</th>
-                  <th>Skills</th>
-                  <th>Action</th> {/* New Action Column */}
+                <tr className="">
+                  <th>
+                    <span className="badge badge-primary p-2">
+                      <FaIdCard className="text-white mr-2" />
+                      Interview Id
+                    </span>
+                  </th>
+                  <th>
+                    <span className="badge badge-primary p-2">
+                      <FaLayerGroup className="text-white mr-2" />
+                      Level
+                    </span>
+                  </th>
+                  <th>
+                    <span className="badge badge-primary p-2">
+                      <FaHatCowboy className="text-white mr-2" /> Role
+                    </span>
+                  </th>
+                  <th>
+                    <span className="badge badge-primary p-2">
+                      <FaCodeBranch className="text-white mr-2" />
+                      Skills
+                    </span>
+                  </th>
+                  <th>
+                    <span className="badge badge-warning p-2">
+                      <FaStar className="text-white" />
+                    </span>
+                  </th>
+                  <th>
+                    <span className="badge badge-success p-2">
+                      <FaCheck className="text-white" />
+                    </span>
+                  </th>
+                  <th>
+                    <span className="badge badge-danger p-2">
+                      <FaTimes className="text-white" />
+                    </span>
+                  </th>
+                  <th>
+                    <span className="badge badge-primary p-2">
+                      <FaPenNib className="text-white mr-2" />
+                      Action
+                    </span>
+                  </th>{" "}
+                  {/* New Action Column */}
                 </tr>
               </thead>
               <tbody>
                 {currentUsers.length > 0 ? (
                   currentUsers.map((user, index) => (
                     <tr key={index}>
-                      <td>{user.name}</td>
-                      <td>{user.email}</td>
                       <td>
-                        {user.experienceLevel == "2" && "Intemediate"}{" "}
+                        {user.interview_id}
+                        <br />{" "}
+                        <span className="badge badge-info">{user.email}</span>
+                      </td>
+                      <td>
+                        {user.experienceLevel == "2" && "Intermediate"}{" "}
                         {user.experienceLevel == "1" && "Fresher"}
                         {user.experienceLevel == "3" && "Expert"}
                       </td>
                       <td>{user.role}</td>
-                      <td>{user.skills}</td>
-
+                      <td>{JSON.parse(user.skills).join(", ")}</td>{" "}
+                      {/* Display skills */}
+                      <td>{user.score}</td>
+                      <td>{user.correct_answers}</td>
+                      <td>{user.incorrect_answers}</td>
                       <td>
                         <button
-                          className="btn btn-primary"
+                          className="btn btn-sm bg-primary text-white"
                           onClick={() => handleEmailRedirect(user.email)}
                         >
-                          Answer Sheet
+                          Sheet
                         </button>
                       </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="6">No users found</td>{" "}
-                    {/* Adjust colspan for 6 columns */}
+                    <td colSpan="10">No users found</td>{" "}
+                    {/* Adjust colspan for 10 columns */}
                   </tr>
                 )}
               </tbody>

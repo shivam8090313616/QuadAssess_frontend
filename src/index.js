@@ -16,9 +16,8 @@ import InterviewPage from "views/InterviewPage/Interview1";
 import QuestionPage from "views/InterviewPage/Interview2";
 import ProtectedRoute from "./ProtectedRoute"; // Import the ProtectedRoute component
 import Pending from "views/InterviewPage/Pending";
-import AnswerSheet from "views/InterviewPage/AnswerSheet";
-import InterviewUserPage from "views/InterviewPage/AnswerSheet";
-import AnswerSheetUser from "views/InterviewPage/AnswerSheet2";
+import InterviewUserPage from "views/InterviewPage/admin/AnswerSheet";
+import AnswersheetCheck from "views/InterviewPage/admin/AnswerSheet2";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
@@ -89,10 +88,10 @@ root.render(
         }
       />
      <Route
-  path="/send-email/:email" // Use /:email instead of :email
+  path="/answersheet/:email" // Use /:email instead of :email
   element={
     <ProtectedRoute>
-      <AnswerSheetUser />
+      <AnswersheetCheck />
     </ProtectedRoute>
   }
 />

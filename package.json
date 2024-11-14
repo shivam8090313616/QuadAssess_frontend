@@ -1,33 +1,8 @@
 {
-  "name": "argon-design-system-react",
+  "name": "QuadAssess",
   "version": "1.1.2",
   "description": "React version of Argon Design System by Creative Tim",
   "main": "index.js",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/creativetimofficial/argon-design-system-react.git"
-  },
-  "keywords": [
-    "react",
-    "reactjs",
-    "argon",
-    "argon-react",
-    "design",
-    "design-react",
-    "argon-design",
-    "argon-design-react",
-    "kit",
-    "react-kit",
-    "argon-design-system",
-    "argon-design-system-react",
-    "design-system-react"
-  ],
-  "author": "Creative Tim",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/creativetimofficial/argon-design-system-react/issues"
-  },
-  "homepage": "https://demos.creative-tim.com/argon-design-system-react/",
   "scripts": {
     "start": "react-scripts start",
     "build": "cross-env PUBLIC_URL=/ react-scripts build",
@@ -69,7 +44,8 @@
     "react-toastify": "^10.0.6",
     "reactstrap": "8.10.0",
     "sass": "1.62.1",
-    "styled-component": "^2.8.0"
+    "styled-component": "^2.8.0",
+    "sweetalert2": "^11.14.5"
   },
   "peerDependencies": {
     "react": ">=16.0.0",

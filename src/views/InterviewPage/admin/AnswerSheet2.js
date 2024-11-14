@@ -1,6 +1,8 @@
 import { IneterviewUserAnserList, CreateReport } from "api";
 import DemoNavbar from "components/Navbars/DemoNavbar";
 import { useEffect, useRef, useState } from "react";
+import Swal from 'sweetalert2';
+
 import {
   Form,
   Button,
@@ -34,7 +36,8 @@ ChartJS.register(
   Tooltip,
   Legend
 );
-const SendEmailPage = () => {
+
+const AnswersheetCheck = () => {
   const mainRef = useRef(null);
   const navigate = useNavigate();
   const { email } = useParams();
@@ -79,20 +82,48 @@ const SendEmailPage = () => {
     setCorrectAnswers(newCorrectAnswers);
     setIncorrectAnswers(newIncorrectAnswers);
   };
+
+  const handleSaveConfirmation = () => {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "Do you want to save the report?",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, save it!',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        saveReport();
+        Swal.fire('Saved!', 'Your report has been saved.', 'success').then(() => {
+          navigate('/Interviewuser-page');
+        });
+      }
+    });
+  };
+
   const saveReport = async () => {
-    const reportData = {
+    const marksPayload = data.map((item) => ({
+      question: item.question,
+      marks: marks[item.question] || 0,
+    }));
+
+ const reportData = {
       email: email,
       score: totalMarks,
       correct_answers: correctAnswers,
       incorrect_answers: incorrectAnswers,
+      marks_per_question: marksPayload, // Add the marks per question here
     };
 
     try {
       await CreateReport(reportData);
+      console.log('Report saved successfully');
     } catch (error) {
-      console.error("Error creating report:", error);
+      console.error('Error creating report:', error);
     }
   };
+
   const correctIncorrectData = {
     labels: ["Correct", "Incorrect"],
     datasets: [
@@ -248,13 +279,13 @@ const SendEmailPage = () => {
                   plugins: { legend: { position: "top" } },
                 }}
                 style={{ maxHeight: "300px" }}
-              />{" "}
+              />
             </div>
 
             <Button
               color="success"
               className="mt-0 w-100 py-3 text-uppercase font-weight-bold shadow-sm"
-              onClick={saveReport}
+              onClick={handleSaveConfirmation}
             >
               Save Report
             </Button>
@@ -265,4 +296,4 @@ const SendEmailPage = () => {
   );
 };
 
-export default SendEmailPage;
+export default AnswersheetCheck;

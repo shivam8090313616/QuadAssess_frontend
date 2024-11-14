@@ -114,7 +114,7 @@ const QuestionPage = () => {
         questionId: question.id,
         answer: answers[index] || "",
       })),
-      storedUser.uid
+      storedUser.email
     );
   
     if (response.message === "Answers submitted successfully!") {
