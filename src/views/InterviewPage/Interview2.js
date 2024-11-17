@@ -18,9 +18,10 @@ import {
   FaArrowLeft,
   FaArrowRight,
   FaQuestionCircle,
+  FaMicrophoneAlt,
 } from "react-icons/fa";
 import { InterviewQuestion } from "api";
-import WarningAlert from "./WarningAlert"; 
+import WarningAlert from "./WarningAlert";
 import DemoNavbar from "components/Navbars/DemoNavbar";
 import { Navigate, useNavigate } from "react-router-dom";
 import { SubmitAnswer } from "api";
@@ -34,9 +35,43 @@ const QuestionPage = () => {
   const [tooltipOpen, setTooltipOpen] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(1800);
   const [isTimerRunning, setIsTimerRunning] = useState(true);
+  const [id, setId] = useState();
+  const [email, setEmail] = useState();
   const navigate = useNavigate();
+
+  // Initialize SpeechRecognition API (Browser-specific)
+  const SpeechRecognition =
+    window.SpeechRecognition || window.webkitSpeechRecognition;
+  const recognition = new SpeechRecognition();
+  recognition.continuous = true; // Keep the microphone listening continuously
+  recognition.lang = "en-US"; // Set language to English
+  recognition.interimResults = true; // Allow intermediate results while speaking
+
+  // Function to handle the start of speech recognition
+  const startSpeechToText = () => {
+    recognition.start();
+  };
+
+  // This function will be triggered whenever speech recognition results are available
+  useEffect(() => {
+    recognition.onresult = (event) => {
+      const transcript = event.results[event.results.length - 1][0].transcript;
+      const updatedAnswers = [...answers];
+      updatedAnswers[currentIndex] = transcript; // Update the answer for the current question
+      setAnswers(updatedAnswers); // Directly update the answer in real-time
+    };
+
+    // Stop recognition when it's complete
+    recognition.onend = () => {
+      // Optionally restart recognition when it stops
+      recognition.start();
+    };
+  }, [currentIndex, answers]);
+
   useEffect(() => {
     const interviewUser = JSON.parse(localStorage.getItem("inertviewuser"));
+    setId(interviewUser.interview_id);
+    setEmail(interviewUser.email);
     if (interviewUser) {
       GetQuestion(interviewUser);
     } else {
@@ -55,10 +90,9 @@ const QuestionPage = () => {
         });
       }, 1000);
 
-      return () => clearInterval(timerInterval); 
+      return () => clearInterval(timerInterval);
     }
   }, [isTimerRunning]);
-
 
   const GetQuestion = async (data) => {
     try {
@@ -98,17 +132,16 @@ const QuestionPage = () => {
   const toggleTooltip = () => setTooltipOpen(!tooltipOpen);
 
   const handleSubmit = async (e) => {
-   
     e.preventDefault();
     setLoading(true);
-  
+
     const storedUser = JSON.parse(localStorage.getItem("user"));
     if (!storedUser?.uid) {
       console.error("User not found in localStorage");
       setLoading(false);
       return;
     }
-  
+
     const response = await SubmitAnswer(
       questions.map((question, index) => ({
         questionId: question.id,
@@ -116,7 +149,7 @@ const QuestionPage = () => {
       })),
       storedUser.email
     );
-  
+
     if (response.message === "Answers submitted successfully!") {
       setAnswers([]);
       setCurrentIndex(0);
@@ -124,10 +157,9 @@ const QuestionPage = () => {
     } else {
       console.error("Error:", response);
     }
-  
+
     setLoading(false);
   };
-  
 
   // Convert seconds into MM:SS format
   const formatTime = (seconds) => {
@@ -167,13 +199,17 @@ const QuestionPage = () => {
                 {questions.length > 0 ? (
                   <form onSubmit={handleSubmit}>
                     <Row className="mt-4">
-                      <Col className=" " xs="12" md="4">
+                      <Col xs="12" md="4">
                         <h3 className="text-center bg-white rounded text-primary mb-3">
-                          Interview Questions
+                          Interview Questions <br />
+                          <span style={{ fontSize: "16px" }}>
+                            <strong>ID: </strong>{id} <br />
+                            <strong>Mail: </strong>{email}
+                          </span>
                         </h3>
                       </Col>
                       <Col xs="12" md="8">
-                        <div className="w-100 text-center mb-4 bg-white rounded ">
+                        <div className="w-100 text-center mb-4 bg-white rounded">
                           <h5 className="text-primary">Time Remaining</h5>
                           <h3 className="text-primary">
                             {formatTime(timeRemaining)}
@@ -273,6 +309,17 @@ const QuestionPage = () => {
                           </Col>
                         </Row>
 
+                        {/* Speech-to-Text button */}
+                        <div className="mt-3 d-flex justify-content-center w-100">
+                          <Button
+                            color="info"
+                            onClick={startSpeechToText}
+                            className="mr-3"
+                          >
+                            <FaMicrophoneAlt /> Start Speaking
+                          </Button>
+                        </div>
+
                         {/* Navigation buttons */}
                         <div className="mt-3 d-flex justify-content-between w-100">
                           {currentIndex > 0 && (
@@ -290,10 +337,7 @@ const QuestionPage = () => {
 
                           {/* Show Submit button if it's the last question */}
                           {currentIndex === questions.length - 1 && (
-                            <Button
-                              color="success"
-                              type="submit" // Trigger form submission
-                            >
+                            <Button color="success" type="submit">
                               Submit <FaArrowRight />
                             </Button>
                           )}

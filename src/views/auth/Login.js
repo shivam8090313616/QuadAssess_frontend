@@ -22,7 +22,7 @@ import loginAnimation from "assets/animations/login-animation.json";
 import bgAnimation from "assets/animations/background.json";
 import welcomeAnimation from "assets/animations/welcome.json";
 import { loginUser } from "api";
-import "./Login.css"; // Custom CSS for enhanced styling
+import "./Login.css";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -34,7 +34,7 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false); // for loading state
 
   useEffect(() => {
-    const timer = setTimeout(() => setShowForm(true), 3000); // Delay form reveal
+    const timer = setTimeout(() => setShowForm(true), 6000); // Delay form reveal
     return () => clearTimeout(timer);
   }, []);
 
@@ -114,7 +114,7 @@ const Login = () => {
                 <Card className="bg-secondary shadow border-0" style={{ borderRadius: "15px" }}>
                   <CardHeader className="bg-white text-center" style={{ borderRadius: "15px" }}>
                     <Lottie options={welcomeLottieOptions} height={100} width={300} />
-                    <p className="text-muted mt-2">Please log in to continue</p>
+                    <p className="text-primary mt-2">Please log in to continue</p>
                   </CardHeader>
 
                   <CardBody className="px-lg-5 py-lg-5">

@@ -35,8 +35,11 @@ const InterviewPage = () => {
   const [step, setStep] = useState(1); // State to control the step flow
   const [timer, setTimer] = useState(5); // Timer state to countdown from 5
   const [modal, setModal] = useState(false); // Modal state for controlling visibility
+  const [UserData, setUserData] = useState(""); // Modal state for controlling visibility
+  const [name, setName] = useState(); // Modal state for controlling visibility
+  const [email, setEmail] = useState(); // Modal state for controlling visibility
   const navigate = useNavigate(); // For page navigation
-
+  
   // Function to move to the next step
   const nextStep = () => {
     setStep((prevStep) => prevStep + 1);
@@ -52,6 +55,15 @@ const InterviewPage = () => {
     setModal(!modal);
   };
 
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      const parsedUser = JSON.parse(storedUser);
+      setUserData(parsedUser);
+      setEmail(parsedUser.email);
+      setName(parsedUser.name);
+    }
+  }, []);
   // Timer logic using useEffect to properly update the timer
   useEffect(() => {
     let interval;
@@ -78,7 +90,9 @@ const InterviewPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+    formData.name = UserData.name || formData.name;
+    formData.email = UserData.email || formData.email;
+    formData.status = "1"
     // Ensure all required fields are filled
     if (formData.name && formData.email && formData.role && formData.skills.length > 0) {
       const response = await InterviewUserSubmit(formData);
@@ -125,6 +139,7 @@ const InterviewPage = () => {
     role: "",
     skills: [],
     experienceLevel: "Beginner",
+    status:"1"
   });
 
   const handleInputChange = (e) => {
@@ -325,10 +340,11 @@ const InterviewPage = () => {
                             type="text"
                             name="name"
                             id="name"
-                            value={formData.name}
+                            value={name}
                             onChange={handleInputChange}
                             placeholder="Enter your full name"
-                            className="form-control-lg"
+                            className="form-control-lg bg-primary text-white"
+                            disabled
                             required
                           />
                         </FormGroup>
@@ -339,11 +355,12 @@ const InterviewPage = () => {
                             type="email"
                             name="email"
                             id="email"
-                            value={formData.email}
+                            value={email}
                             onChange={handleInputChange}
                             placeholder="Enter your email"
-                            className="form-control-lg"
+                            className="form-control-lg bg-primary text-white"
                             required
+                            disabled
                           />
                         </FormGroup>
 
