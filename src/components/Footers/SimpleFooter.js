@@ -14,14 +14,15 @@ class SimpleFooter extends React.Component {
   render() {
     return (
       <>
-        <footer className="footer pt-5 pb-3">
+        <footer className="footer pt-5 pb-3" style={{ background:"#212b3b" }}>
           <Container>
             <Row className="row-grid align-items-center mb-4">
               <Col lg="6">
-                <h3 className="text-primary font-weight-light mb-2">
+                <h3 className="text-light font-weight-light mb-2">
                   Thank you for being part of our learning community!
                 </h3>
-                <h4 className="mb-0 font-weight-light">
+                <span style={{ fontWeight:"bold" }} className="text-secondary">--------------------------------------------------</span>
+                <h4 className="mb-0 font-weight-light text-light">
                   Stay connected and keep building your skills.
                 </h4>
               </Col>
@@ -38,30 +39,29 @@ class SimpleFooter extends React.Component {
                 </Button>
               </Col>
             </Row>
-            <hr />
+            <hr className="border border-top border-light" />
             <Row className="align-items-center justify-content-md-between">
               <Col md="6">
                 <div className="copyright">
                   © {new Date().getFullYear()}{" "}
-                  <a href="https://www.creative-tim.com?ref=adsr-footer" target="_blank">
-                    Creative Tim
+                  <a  target="_blank">
+                    QuadAssess
                   </a>
                   .
                 </div>
               </Col>
               <Col md="6">
-                <Nav className="nav-footer justify-content-end">
+                <Nav className="nav-footer justify-content-end text-white">
                   <NavItem>
                     <NavLink
-                      href="https://www.creative-tim.com?ref=adsr-footer"
                       target="_blank"
+                      
                     >
-                      Creative Tim
+                      QuadAssess
                     </NavLink>
                   </NavItem>
                   <NavItem>
                     <NavLink
-                      href="https://www.creative-tim.com/presentation?ref=adsr-footer"
                       target="_blank"
                     >
                       About Us
@@ -69,7 +69,6 @@ class SimpleFooter extends React.Component {
                   </NavItem>
                   <NavItem>
                     <NavLink
-                      href="http://blog.creative-tim.com?ref=adsr-footer"
                       target="_blank"
                     >
                       Blog
@@ -77,10 +76,9 @@ class SimpleFooter extends React.Component {
                   </NavItem>
                   <NavItem>
                     <NavLink
-                      href="https://github.com/creativetimofficial/argon-design-system-react/blob/master/LICENSE.md"
                       target="_blank"
                     >
-                      MIT License
+                      {/* MIT License */}
                     </NavLink>
                   </NavItem>
                 </Nav>

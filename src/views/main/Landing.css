@@ -1,21 +1,80 @@
+/* Hero Section */
 .hero-section {
-    background: linear-gradient(135deg, #1f4e8b, #61dafb);
-    padding: 100px 0;
-  }
-  
-  .features-section {
-    padding: 80px 0;
-  }
-  
-  .call-to-action {
-    padding: 60px 0;
-  }
-  
-  blockquote {
-    font-size: 1.2rem;
-    font-style: italic;
-    margin: 20px 0;
-    border-left: 4px solid #61dafb;
-    padding-left: 15px;
-  }
-  
+  background-color: #212b3b;
+  text-align: center;
+
+}
+
+.hero-section h1 {
+  font-size: 50px;
+  font-weight: bold;
+}
+
+.hero-section p {
+  font-size: 18px;
+}
+
+/* CTA Button */
+.cta-button {
+  background: linear-gradient(135deg, #1f4e8b, #61dafb);
+  border-radius: 30px;
+  padding: 10px 50px;
+  font-weight: bold;
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.cta-button:hover {
+  background: linear-gradient(135deg, #2c6a99, #42a9d2);
+  box-shadow: 0 4px 10px rgba(97, 218, 251, 0.4);
+}
+
+/* Features Section */
+.feature-card {
+  transition: transform 0.3s ease-in-out;
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  margin: 10px;
+}
+
+.feature-card:hover {
+  transform: translateY(-10px);
+}
+
+.feature-icon {
+  color: #1f4e8b;
+  margin-bottom: 20px;
+}
+
+/* Testimonials Section */
+.testimonials-section blockquote {
+  font-size: 18px;
+  font-style: italic;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.testimonials-section footer {
+  font-size: 16px;
+  color: #ffcc00;
+}
+
+/* Call-to-Action Section */
+.call-to-action {
+  background: transparent;
+  padding: 80px 0;
+  color: white;
+}
+
+.call-to-action h2 {
+  font-size: 36px;
+  font-weight: bold;
+}
+
+.call-to-action p {
+  font-size: 18px;
+  margin-bottom: 30px;
+}

@@ -1,0 +1,63 @@
+/* Card Glow and Shadow */
+.bg-secondary {
+    box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.2);
+    transition: box-shadow 0.3s ease-in-out;
+  }
+  
+  .bg-secondary:hover {
+    box-shadow: 0px 12px 25px rgba(0, 0, 0, 0.3);
+  }
+  
+  /* Form Slide-Up with Fade-In */
+  .animated-form {
+    animation: slideUpFade 0.8s ease-out;
+  }
+  
+  @keyframes slideUpFade {
+    from {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+  
+  /* Input Focus Styling */
+  .input-group-alternative input:focus {
+    border-color: #61dafb;
+    box-shadow: 0px 0px 8px rgba(97, 218, 251, 0.8);
+    transition: all 0.3s ease-in-out;
+  }
+  
+  /* Button Hover */
+  button {
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  button:hover {
+    background: linear-gradient(135deg, #1f4e8b, #61dafb);
+    box-shadow: 0px 6px 12px rgba(97, 218, 251, 0.4);
+  }
+  
+  /* Lottie Animation Container */
+  .bg-animation {
+    filter: brightness(0.9);
+    animation: subtleGlow 3s infinite alternate ease-in-out;
+  }
+  
+  @keyframes subtleGlow {
+    from {
+      filter: brightness(0.8);
+    }
+    to {
+      filter: brightness(1);
+    }
+  }
+  
+  /* Button Spinner */
+  .spinner-border-sm {
+    margin-right: 10px;
+  }
+  

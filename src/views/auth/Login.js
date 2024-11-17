@@ -1,5 +1,8 @@
-import React, { useState } from "react";
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import Lottie from "react-lottie";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import {
   Button,
   Card,
@@ -14,19 +17,26 @@ import {
   Container,
   Row,
   Col,
-  Progress,
 } from "reactstrap";
+import loginAnimation from "assets/animations/login-animation.json";
+import bgAnimation from "assets/animations/background.json";
+import welcomeAnimation from "assets/animations/welcome.json";
 import { loginUser } from "api";
+import "./Login.css"; // Custom CSS for enhanced styling
 
 const Login = () => {
   const navigate = useNavigate();
-  const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    successMessage: "",
-    error: null,
+    email: "",
+    password: "",
   });
+  const [showForm, setShowForm] = useState(false);
+  const [isLoading, setIsLoading] = useState(false); // for loading state
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShowForm(true), 3000); // Delay form reveal
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -34,127 +44,141 @@ const Login = () => {
 
   const onSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true); // Start loading animation
     const { email, password } = formData;
 
-    const data = {
-      email,
-      password,
-    };
-
     try {
-      const response = await loginUser(data); // Call the API correctly
-      localStorage.removeItem('token'); // Clear old local storage data
-      localStorage.removeItem('user'); 
-      localStorage.setItem('token', response.token); // Save new token and user data
-      localStorage.setItem('user', JSON.stringify(response.user));
-      setFormData({ ...formData, successMessage: "Successfully Matched! Redirecting ..." });
-      setTimeout(() => {
-        navigate("/");
-      }, 2000);
+      const response = await loginUser({ email, password });
+      localStorage.setItem("token", response.token);
+      localStorage.setItem("user", JSON.stringify(response.user));
+      toast.success("Successfully logged in!");
+      setTimeout(() => navigate("/"), 2000);
     } catch (error) {
-      console.error("Error logging in:", error);
-      const errorMessage = error.response?.data?.message || "Login failed. Please try again.";
-      setFormData({ ...formData, error: errorMessage });
+      const errorMessage = error.response?.data?.message || "Login failed.";
+      toast.error(errorMessage);
+    } finally {
+      setIsLoading(false); // Stop loading animation
     }
+  };
+
+  const lottieOptions = {
+    loop: true,
+    autoplay: true,
+    animationData: loginAnimation,
+    rendererSettings: { preserveAspectRatio: "xMidYMid slice" },
+  };
+
+  const bgLottieOptions = {
+    loop: true,
+    autoplay: true,
+    animationData: bgAnimation,
+    rendererSettings: { preserveAspectRatio: "xMidYMid slice" },
+  };
+
+  const welcomeLottieOptions = {
+    loop: true,
+    autoplay: true,
+    animationData: welcomeAnimation,
+    rendererSettings: { preserveAspectRatio: "xMidYMid slice" },
   };
 
   return (
     <main>
+      <ToastContainer />
+      {/* Background Animation */}
+      <div
+        className="bg-animation"
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          zIndex: -1,
+          background: "linear-gradient(165deg, #98c1d9, #3d5a80)",
+        }}
+      >
+        <Lottie options={bgLottieOptions} height="100%" width="100%" />
+      </div>
+
       <section className="section section-shaped section-lg">
-        <div className="shape shape-style-1 bg-gradient-default">
-          <span />
-          <span />
-          <span />
-          <span />
-          <span />
-          <span />
-          <span />
-          <span />
-        </div>
-        <Container className="pt-lg-5 pb-lg-9">
-          <Row className="justify-content-center">
-            <Col lg="6">
-              <Card className="bg-secondary shadow border-0">
-                <CardHeader className="bg-white">
-                  <div className="text-muted text-center">
-                    <h3>Quad Assess <i className="ni ni-user-run ml-1" style={{fontSize:"16px", fontWeight:"bold"}}/></h3>
-                  </div>
-                  <Progress value={(currentStep) * 100} />
-                </CardHeader>
-                <CardBody className="px-lg-5 py-lg-5">
-                  <Form role="form" onSubmit={onSubmit}>
-                    <FormGroup>
-                      <InputGroup className="input-group-alternative mb-3">
-                        <InputGroupAddon addonType="prepend">
-                          <InputGroupText>
-                            <i className="ni ni-email-83" />
-                          </InputGroupText>
-                        </InputGroupAddon>
-                        <Input 
-                          name="email"
-                          placeholder="Email" 
-                          type="email" 
-                          value={formData.email}
-                          onChange={handleChange}
-                          required
-                        />
-                      </InputGroup>
-                    </FormGroup>
-                    <FormGroup>
-                      <InputGroup className="input-group-alternative mb-3">
-                        <InputGroupAddon addonType="prepend">
-                          <InputGroupText>
-                            <i className="ni ni-lock-circle-open" />
-                          </InputGroupText>
-                        </InputGroupAddon>
-                        <Input
-                          name="password"
-                          placeholder="Password"
-                          type="password"
-                          value={formData.password}
-                          onChange={handleChange}
-                          required
-                        />
-                      </InputGroup>
-                    </FormGroup>
-                    <div className="text-center">
-                      <Button className="btn-neutral" color="default" type="submit">
-                        Submit
-                      </Button>
-                    </div>
-                    {formData.successMessage && (
-                      <div className="text-success mt-3">
-                        {formData.successMessage}
+        <Container>
+          <Row className="justify-content-center align-items-center">
+            {/* Show Lottie Animation or Form Based on `showForm` */}
+            {!showForm ? (
+              <Col lg="7" className="text-center p-0">
+                <Lottie options={lottieOptions} height={650} width={700} />
+              </Col>
+            ) : (
+              <Col lg="7" className="animated-form" style={{ paddingTop: "100px" }}>
+                <Card className="bg-secondary shadow border-0" style={{ borderRadius: "15px" }}>
+                  <CardHeader className="bg-white text-center" style={{ borderRadius: "15px" }}>
+                    <Lottie options={welcomeLottieOptions} height={100} width={300} />
+                    <p className="text-muted mt-2">Please log in to continue</p>
+                  </CardHeader>
+
+                  <CardBody className="px-lg-5 py-lg-5">
+                    <Form role="form" onSubmit={onSubmit}>
+                      {/* Email Field */}
+                      <FormGroup>
+                        <InputGroup className="input-group-alternative mb-3">
+                          <InputGroupAddon addonType="prepend">
+                            <InputGroupText>
+                              <i className="ni ni-email-83" />
+                            </InputGroupText>
+                          </InputGroupAddon>
+                          <Input
+                            name="email"
+                            placeholder="Email"
+                            type="email"
+                            value={formData.email}
+                            onChange={handleChange}
+                            required
+                          />
+                        </InputGroup>
+                      </FormGroup>
+
+                      {/* Password Field */}
+                      <FormGroup>
+                        <InputGroup className="input-group-alternative mb-3">
+                          <InputGroupAddon addonType="prepend">
+                            <InputGroupText>
+                              <i className="ni ni-lock-circle-open" />
+                            </InputGroupText>
+                          </InputGroupAddon>
+                          <Input
+                            name="password"
+                            placeholder="Password"
+                            type="password"
+                            value={formData.password}
+                            onChange={handleChange}
+                            required
+                          />
+                        </InputGroup>
+                      </FormGroup>
+
+                      {/* Submit Button */}
+                      <div className="text-center">
+                        <Button
+                          color="primary"
+                          type="submit"
+                          disabled={isLoading}
+                          style={{
+                            background: "#1f4e8b",
+                            borderRadius: "30px",
+                            padding: "10px 50px",
+                            fontWeight: "bold",
+                            color: "white",
+                          }}
+                        >
+                          {isLoading ? <span className="spinner-border spinner-border-sm"></span> : "Log In"}
+                        </Button>
                       </div>
-                    )}
-                    {formData.error && (
-                      <div className="text-danger mt-3">
-                        {formData.error}
-                      </div>
-                    )}
-                  </Form>
-                </CardBody>
-              </Card>
-            </Col>
-          </Row>
-          <Row className="mt-3">
-            <Col xs="6">
-              <a
-                className="text-light"
-                href="#pablo"
-                onClick={(e) => e.preventDefault()}
-              >
-                <small>Forgot password?</small>
-              </a>
-            </Col>
-            <Col className="text-right" xs="6">
-              <a
-                className="text-light"
-                onClick={() => navigate('/register-page')}
-              >
-                <small>Create new account</small>
-              </a>
-            </Col>
+                    </Form>
+                  </CardBody>
+                </Card>
+              </Col>
+            )}
           </Row>
         </Container>
       </section>
